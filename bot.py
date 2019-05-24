@@ -220,12 +220,12 @@ def get_user_game(self, user_id):
 def process_message(message):
     if message["sender_type"] == "user":
         if message["text"].startswith(PREFIX):
-            instructions = message.text[len(PREFIX):].strip().split(None, 1)
+            instructions = message["text"][len(PREFIX):].strip().split(None, 1)
             command = instructions.pop(0).lower()
             query = instructions[0] if len(instructions) > 0 else ""
-            group_id = message["group_id"]
-            user_id = message["user_id"]
-            name = message["name"]
+            group_id = message.get("group_id")
+            user_id = message.get("user_id")
+            name = message.get("name")
 
             game = games.get(group_id)
             if command == "start":
@@ -464,4 +464,10 @@ def game_selection(data):
             send(f"{player.name} has played a card. {remaining_players} still need to play.", group_id)
     game_ping(access_token)
 
+
 print("Loaded!")
+
+if __name__ == "__main__":
+    while True:
+        print(process_message({"text": input("> "),
+                               "sender_type": "user"}))
