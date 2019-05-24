@@ -338,6 +338,8 @@ def in_group(group_id):
 @app.route("/manager", methods=["GET", "POST"])
 def manager():
     access_token = request.args["access_token"]
+    callback_url = "https://botagainsthumanitygroupme.herokuapp.com/message"
+    me = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
     if request.method == "POST":
         # Build and send bot data
         group_id = request.form["group_id"]
@@ -345,9 +347,8 @@ def manager():
             "name": "Bot Against Humanity",
             "group_id": group_id,
             "avatar_url": "https://i.groupme.com/200x200.png.092e3648ee2745aeb3296a51b3a85e0f",
-            "callback_url": "https://botagainsthumanitygroupme.herokuapp.com/message",
+            "callback_url": callback_url,
         }
-        me = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
         result = requests.post(f"https://api.groupme.com/v3/bots?token={access_token}",
                                json={"bot": bot}).json()["response"]["bot"]
         group = requests.get(f"https://api.groupme.com/v3/groups/{group_id}?token={access_token}").json()["response"]
@@ -358,8 +359,8 @@ def manager():
         db.session.commit()
     groups = requests.get(f"https://api.groupme.com/v3/groups?token={access_token}").json()["response"]
     groups = [group for group in groups if not Bot.query.get(group["group_id"])]
-    bots = requests.get(f"https://api.groupme.com/v3/bots?token={access_token}").json()["response"]
-    bots = [bot for bot in bots if Bot.query.get(bot["group_id"])]
+    groupme_bots = requests.get(f"https://api.groupme.com/v3/bots?token={access_token}").json()["response"]
+    bots = Bot.query.all(owner_id=me["user_id"])
     return render_template("manager.html", access_token=access_token, groups=groups, bots=bots)
 
 
