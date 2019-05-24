@@ -1,35 +1,17 @@
-# Yalebot
-[![Build Status](https://travis-ci.org/ErikBoesen/Yalebot.svg?branch=master)](https://travis-ci.org/ErikBoesen/Yalebot)
+# Bot Against Humanity
+[![Build Status](https://travis-ci.org/ErikBoesen/BotAgainstHumanity.svg?branch=master)](https://travis-ci.org/ErikBoesen/BotAgainstHumanity)
 
-> A GroupMe chatbot for Yale University.
+> Bot Against Humanity allows members of GroupMe chats to virtually play everyone's favorite party game for terrible people.
 
 ![Screenshot](screenshot.png)
 
-To add this bot to your own server, go [here](https://yalebot.herokuapp.com)!
+## Motivation
+Bot Against Humanity was created by [Erik Boesen](https://github.com/ErikBoesen). It grew out of [Yalebot](https://github.com/ErikBoesen/Yalebot), a bot designed (also by Erik) for Yale University's Class of 2023 GroupMe chats. Yalebot is a very complex bot with several hundred different functions, of which facilitating virtual Cards Against Humanity games was only one. The card game did not fit well into the existing modular infrastructure of Yalebot due to the need for interaction through the chat, a web interface, and websockets. As such, Yalebot's CAH functionality was spun off into this bot.
 
-[Add to Discord server](https://discordapp.com/oauth2/authorize?client_id=576194237175955456&permissions=0&scope=bot)
-
-## Design
-Yalebot uses the [GroupMe Bots API](https://dev.groupme.com/tutorials/bots) for message exchange, hosting a Flask server which listens for incoming webhooks calculates on a response.
-
-### Module structure
-In order to keep code clean and maintainable, most bot systems are compartmentalized under the subdirectory `modules/`. Each contains a class that implements a method `response` taking as parameters the query (message text following command invocation) and raw message data from GroupMe. These modules inherit from the `Module` class. Class variables `DESCRIPTION` and `ARGC` should be assigned, giving a summary of component functions and the number of required arguments respectively. Each module must be instantiated in `bot.py`.
-
-Static text responses are present in the `static_commands` dictionary in `bot.py`.
+To add this bot to your own server, go [here](https://botagainsthumanitygroupme.herokuapp.com)!
 
 ## Platform
-Yalebot runs best on [Heroku](https://heroku.com).
-
-To run Yalebot, you must provide your own API key for certain modules to function properly:
-
-```sh
-heroku config:set GROUPME_ACCESS_TOKEN=abcdef12345  # obtained from dev.groupme.com
-```
-
-After that, simply push the code via Heroku CLI and the bot will launch.
-
-## Authorship
-Yalebot was created by [Erik Boesen](https://github.com/ErikBoesen).
+Bot Against Humanity runs best on [Heroku](https://heroku.com). Simply push the code via Heroku CLI and the bot will launch.
 
 ## License
 [GPL](LICENSE)
