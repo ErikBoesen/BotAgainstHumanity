@@ -17,6 +17,10 @@ socketio = SocketIO(app)
 
 PREFIX = "CAH "
 
+games = {}
+# TODO: use references to Player objects??
+playing = {}
+
 
 class Player:
     def __init__(self, user_id, name):
@@ -166,6 +170,13 @@ class Game:
         return self.czar_user_id == user_id
 
     def get_nth_card_user_id(self, n):
+        """
+        Get which user submitted the nth card in selection.
+        Useful when Czar chooses a card and only the index is sent.
+
+        :param n: index of chosen card.
+        :return: ID of user who played that card.
+        """
         # TODO: this relies on dictionaries staying in a static order, which they do NOT necessarily!
         # Use a less lazy implementation.
         counter = 0
@@ -175,6 +186,12 @@ class Game:
             counter += 1
 
     def czar_choose(self, card_index):
+        """
+        Choose the winner of a round.
+
+        :param card_index: index of the card the Czar selected.
+        :return: Text of card played, and the Player who played it.
+        """
         user_id, card = self.get_nth_card_user_id(card_index)
         self.players[user_id].score(self.current_black_card)
         self.draw_black_card()
@@ -192,24 +209,18 @@ class Game:
     """
 
 
-games = {}
-# TODO: use references to Player objects??
-playing = {}
-
 def add_player(self, group_id, user_id, name):
     # This is a function so that it can be called automatically when a user is joining or when they're starting a game
-    self.playing[user_id] = group_id
-    self.games[group_id].join(user_id, name)
+    playing[user_id] = group_id
+    games[group_id].join(user_id, name)
 
-    def get_user_game(self, user_id):
-        game_group_id = self.playing.get(user_id)
-        if game_group_id is None:
-            return None
-        return self.games[game_group_id]
+def get_user_game(self, user_id):
+    game_group_id = playing.get(user_id)
+    if game_group_id is None:
+        return None
+    return games[game_group_id]
 
 def process_message(message):
-    responses = []
-    forename = message.name.split(" ", 1)[0]
     if message["sender_type"] == "user":
         if message.text.startswith(PREFIX):
             instructions = message.text[len(PREFIX):].strip().split(None, 1)
@@ -218,38 +229,40 @@ def process_message(message):
             group_id = message["group_id"]
             user_id = message["user_id"]
             name = message["name"]
+
+
             if command == "start":
-                if group_id in self.games:
+                if group_id in games:
                     return "Game already started!"
-                self.games[group_id] = Game(group_id)
+                games[group_id] = Game(group_id)
                 self.add_player(group_id, user_id, name)
                 return (f"Cards Against Humanity game started. {name} added to game as first Czar. Play at https://yalebot.herokuapp.com/cah/join.\n"
                         "Other players can say !cah join to join. !cah end will terminate the game.\n")
             elif command == "end":
-                if group_id not in self.games:
+                if group_id not in games:
                     return "No game in progress."
-                game = self.games.pop(group_id)
+                game = games.pop(group_id)
                 for user_id in game.players:
-                    self.playing.pop(user_id)
+                    playing.pop(user_id)
                 return "Game ended. Say !cah start to start a new game."
             elif command == "join":
-                if user_id in self.playing:
+                if user_id in playing:
                     return "You're already in a game."
-                if group_id not in self.games:
+                if group_id not in games:
                     return "No game in progress. Say !cah start to start a game."
                 self.add_player(group_id, user_id, name)
                 return f"{name} has joined the game! Please go to https://yalebot.herokuapp.com/cah/join to play."
             elif command == "leave":
-                if user_id in self.playing:
-                    self.playing.pop(user_id)
+                if user_id in playing:
+                    playing.pop(user_id)
                     return f"Removed {name} from the game."
                 else:
                     return f"{name} is not currently in a game."
             elif command == "info":
-                return str(self.games) + " " + str(self.playing) + " " + str(self)
+                return str(games) + " " + str(playing) + " " + str(self)
             """
             elif command == "refresh":
-                self.games[group_id].refresh(user_id)
+                games[group_id].refresh(user_id)
             """
             """
             if command == "help":
@@ -266,7 +279,6 @@ def process_message(message):
                     help_string += f"\n(Run `{PREFIX}help commandname` for in-depth explanations.)"
                     responses.append(help_string)
             """
-    return responses
 
 
 def reply(message, group_id):
