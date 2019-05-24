@@ -121,23 +121,25 @@ class Game:
         """
         self.players[user_id].draw_white(self.white_deck.pop())
 
-    def has_played(self, user_id):
+    def has_played(self, user_id) -> bool:
         """
         Check whether a user has played a card already this round.
 
         :param user_id: ID of user to check.
+        :return: whether user has played.
         """
         for candidate_id, card in self.selection:
             if candidate_id == user_id:
                 return True
         return False
 
-    def player_choose(self, user_id, card_index):
+    def player_choose(self, user_id, card_index) -> bool:
         """
         Take a card from a user's hand and play it for the round.
 
         :param user_id: ID of user who's playing.
         :param card_index: index of card that user has chosen in their hand or selection.
+        :return: if the player was allowed to choose their card; i.e. if they hadn't already played.
         """
         if self.has_played(user_id):
             return False
@@ -146,10 +148,21 @@ class Game:
         self.deal_one(user_id)
         return True
 
-    def players_needed(self):
+    def players_needed(self) -> int:
+        """
+        Check how many players need to play before cards can be flipped and Czar can judge.
+
+        :return: number of players who have not played a card yet this round, excluding Czar.
+        """
         return len(self.players) - len(self.selection) - 1
 
-    def is_czar(self, user_id):
+    def is_czar(self, user_id) -> bool:
+        """
+        Check if a user is the Czar.
+
+        :param user_id: ID of user to check.
+        :return: whether user is Czar.
+        """
         return self.czar_user_id == user_id
 
     def get_nth_card_user_id(self, n):
