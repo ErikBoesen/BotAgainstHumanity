@@ -209,11 +209,6 @@ class Game:
     """
 
 
-def add_player(self, group_id, user_id, name):
-    # This is a function so that it can be called automatically when a user is joining or when they're starting a game
-    playing[user_id] = group_id
-    games[group_id].join(user_id, name)
-
 def get_user_game(self, user_id):
     game_group_id = playing.get(user_id)
     if game_group_id is None:
@@ -396,7 +391,7 @@ def delete_bot():
         return "ok", 200
 
 
-@app.route("/cah", methods=["GET"])
+@app.route("/play", methods=["GET"])
 def cah():
     access_token = request.args["access_token"]
     return render_template("cah.html")
