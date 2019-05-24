@@ -16,12 +16,4 @@ onclick = function(e) {
             };
         }
     }
-}
-
-var avatarURLInput = document.getElementsByName("avatar_url")[0],
-    avatarPreview = document.getElementById("avatar_preview");
-function previewAvatar() {
-    avatarPreview.style.backgroundImage = "url(" + avatarURLInput.value + ")";
-}
-previewAvatar();
-avatarURLInput.oninput = previewAvatar;
+};
