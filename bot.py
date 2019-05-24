@@ -62,7 +62,7 @@ class Game:
         """
         Read black cards from file.
         """
-        with open("resources/cah/black.json", "r") as f:
+        with open("resources/black.json", "r") as f:
             self.black_deck = json.load(f)
         # Filter out Pick 2 cards for now
         self.black_deck = [card for card in self.black_deck if card.count("_") == 1]
@@ -73,7 +73,7 @@ class Game:
         """
         Read white cards from file.
         """
-        with open("resources/cah/white.json", "r") as f:
+        with open("resources/white.json", "r") as f:
             self.white_deck = json.load(f)
         random.shuffle(self.white_deck)
 
@@ -234,7 +234,7 @@ def process_message(message):
                 # TODO: DRY
                 playing[user_id] = group_id
                 game.join(user_id, name)
-                return (f"Cards Against Humanity game started. {name} added to game as first Czar. Play at https://yalebot.herokuapp.com/cah/join.\n"
+                return (f"Cards Against Humanity game started. {name} added to game as first Czar. Play at https://botagainsthumanitygroupme.herokuapp.com/play.\n"
                         "Other players can say !cah join to join. !cah end will terminate the game.\n")
             elif command == "end":
                 if game is None:
@@ -251,7 +251,7 @@ def process_message(message):
                 # TODO: DRY
                 playing[user_id] = group_id
                 game.join(user_id, name)
-                return f"{name} has joined the game! Please go to https://yalebot.herokuapp.com/cah/join to play."
+                return f"{name} has joined the game! Please go to https://botagainsthumanitygroupme.herokuapp.com/cah/join to play."
             elif command == "leave":
                 if user_id in playing:
                     playing.pop(user_id)
@@ -397,7 +397,7 @@ def cah():
     # If user attempted to join without an access_token URL parameter, redirect them to sign in with GroupMe and get one.
     if access_token is None:
         return redirect("https://oauth.groupme.com/oauth/authorize?client_id=iEs9DrSihBnH0JbOGZSWK8SdsqRt0pUn8EpulL8Fia3rf6QM", code=302)
-    return render_template("cah.html")
+    return render_template("play.html")
 
 
 @socketio.on("game_connect")
