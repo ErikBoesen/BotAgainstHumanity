@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import eventlet
 from threading import Thread
+import json
+import random
 
 
 app = Flask(__name__)
@@ -99,11 +101,10 @@ def manager():
         # Build and send bot data
         group_id = request.form["group_id"]
         bot = {
-            "name": request.form["name"] or "Yalebot",
+            "name": "Bot Against Humanity",
             "group_id": group_id,
-            "avatar_url": request.form["avatar_url"] or "https://i.groupme.com/310x310.jpeg.1c88aac983ff4587b15ef69c2649a09c",
-            "callback_url": "https://yalebot.herokuapp.com/",
-            "dm_notification": False,
+            "avatar_url": "https://i.groupme.com/200x200.png.092e3648ee2745aeb3296a51b3a85e0f",
+            "callback_url": "https://botagainsthumanitygroupme.herokuapp.com/",
         }
         me = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
         result = requests.post(f"https://api.groupme.com/v3/bots?token={access_token}",
@@ -115,10 +116,9 @@ def manager():
         db.session.add(registrant)
         db.session.commit()
     groups = requests.get(f"https://api.groupme.com/v3/groups?token={access_token}").json()["response"]
+    groups = [group for group in groups if not Bot.query.get(group["group_id"])]
     bots = requests.get(f"https://api.groupme.com/v3/bots?token={access_token}").json()["response"]
-    if os.environ.get("DATABASE_URL") is not None:
-        groups = [group for group in groups if not Bot.query.get(group["group_id"])]
-        bots = [bot for bot in bots if Bot.query.get(bot["group_id"])]
+    bots = [bot for bot in bots if Bot.query.get(bot["group_id"])]
     return render_template("manager.html", access_token=access_token, groups=groups, bots=bots)
 
 
