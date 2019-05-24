@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block main %}
 <section>
-    <h2>Add Yalebot to a group</h2>
+    <h2>Add Bot Against Humanity to a group</h2>
     <form method="post">
         <input type="hidden" id="access_token" value="{{ access_token }}">
         <select name="group_id">
@@ -9,9 +9,6 @@
             <option value="{{ group.id }}">{{ group.name }}</option>
             {% endfor %}
         </select>
-        <label>Bot name: <input name="name" type="text" value="Yalebot"></label>
-        <label>Bot avatar: <input name="avatar_url" type="text" value="https://i.groupme.com/310x310.jpeg.1c88aac983ff4587b15ef69c2649a09c"></label>
-        <div id="avatar_preview"></div>
         <input type="submit" class="button" id="add" value="Add bot">
     </form>
 </section>
@@ -21,7 +18,6 @@
         <thead>
             <th>Avatar</th>
             <th>Bot ID</th>
-            <th>Name</th>
             <th>Group</th>
             <th></th>
         </thead>
@@ -30,7 +26,6 @@
             <tr>
                 <td><img src="{{ bot.avatar_url }}"></td>
                 <td>{{ bot.bot_id }}</td>
-                <td>{{ bot.name }}</td>
                 <td>{{ bot.group_name }}</td>
                 <td><button class="button delete" group_id="{{ bot.group_id }}">Leave</button></td>
             </tr>
@@ -39,7 +34,7 @@
     </table>
 </section>
 <section>
-    <h2>Are you absurdly wealthy? Help me pay my tuition!</h2>
+    <h2>Feeling generous? Help me pay my college tuition!</h2>
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
         <input type="hidden" name="cmd" value="_donations" />
         <input type="hidden" name="business" value="TASL57L8A2FMN" />

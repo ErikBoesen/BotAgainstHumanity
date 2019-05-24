@@ -406,7 +406,7 @@ def game_connect(data):
     # TODO: DRY!!
     user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
     user_id = user["user_id"]
-    game = commands["cah"].get_user_game(user_id)
+    game = get_user_game(user_id)
 
     joined = game_ping(access_token, room=False)
     if joined:
@@ -419,7 +419,7 @@ def game_ping(access_token, room=True, single=True):
     # TODO: Clean this up in the morning when you're sane
     user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
     user_id = user["user_id"]
-    game = commands["cah"].get_user_game(user_id)
+    game = get_user_game(user_id)
     if room:
         selection = [card for _, card in game.selection]
         emit("game_ping", {"black_card": game.current_black_card,
@@ -444,7 +444,7 @@ def game_selection(data):
     access_token = data["access_token"]
     user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
     user_id = user["user_id"]
-    game = commands["cah"].get_user_game(user_id)
+    game = get_user_game(user_id)
     player = game.players[user_id]
     group_id = game.group_id
     if game.is_czar(user_id):
