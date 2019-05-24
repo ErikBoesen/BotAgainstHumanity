@@ -43,19 +43,25 @@ def process_message(message):
 
 
 def reply(message, group_id):
-    send(process_message(Message.from_groupme(message)), group_id)
+    """
+    Calculate message response, then send any response to the group it came from.
+    Designed to be run in a thread.
+
+    :param message: dictionary of message data received from webhook.
+    :param group_id: ID of group in which message was sent.
+    """
+    send(process_message(message), group_id)
 
 
-@app.route("/", methods=["POST"])
-def groupme_webhook():
+@app.route("/message", methods=["POST"])
+def receive_message_callback():
     """
     Receive callback to URL when message is sent in the group.
     """
-    # Retrieve data on that single GroupMe message.
+    # Retrieve data on that GroupMe message.
     message = request.get_json()
     group_id = message["group_id"]
     # Begin reply process in a new thread.
-    # This way, the request won't time out if a response takes too long to generate.
     Thread(target=reply, args=(message, group_id)).start()
     return "ok", 200
 
@@ -63,44 +69,23 @@ def groupme_webhook():
 def send(message, group_id):
     """
     Reply in chat.
-    :param message: text of message to send. May be a tuple with further data, or a list of messages.
+    :param message: text of message to send.
     :param group_id: ID of group in which to send message.
     """
-    # Recurse when sending multiple messages.
-    if isinstance(message, list):
-        for item in message:
-            send(item, group_id)
-        return
-    this_bot = Bot.query.get(group_id)
-    # Close session so it won't remain locked on database
-    db.session.close()
-    data = {
-        "bot_id": this_bot.bot_id,
-    }
-    image = None
-    if isinstance(message, tuple):
-        message, image = message
-    # TODO: this is lazy
-    if message is None:
-        message = ""
-    if len(message) > MAX_MESSAGE_LENGTH:
-        # If text is too long for one message, split it up over several
-        for block in [message[i:i + MAX_MESSAGE_LENGTH] for i in range(0, len(message), MAX_MESSAGE_LENGTH)]:
-            send(block, group_id)
-        data["text"] = ""
-    else:
-        data["text"] = message
-    if image is not None:
-        data["picture_url"] = image
-    # Prevent sending message if there's no content
-    # It would be rejected anyway
-    if data["text"] or data.get("picture_url"):
+    if message:
+        bot = Bot.query.get(group_id)
+        # Close session so it won't remain locked on database
+        db.session.close()
+        data = {
+            "bot_id": bot.bot_id,
+            "text": message,
+        }
         response = requests.post("https://api.groupme.com/v3/bots/post", data=data)
 
 
 @app.route("/")
 def home():
-    return render_template("index.html", static_commands=static_commands.keys(), commands=[(key, commands[key].DESCRIPTION) for key in commands])
+    return render_template("index.html")
 
 
 def in_group(group_id):
