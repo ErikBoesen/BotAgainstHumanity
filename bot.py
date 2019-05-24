@@ -24,26 +24,10 @@ def process_message(message):
             instructions = message.text[len(PREFIX):].strip().split(None, 1)
             command = instructions.pop(0).lower()
             query = instructions[0] if len(instructions) > 0 else ""
-            # Prevent response if prefix is repeated
-            if PREFIX in command:
-                pass
-            # Check if there's a static response for this command
-            elif command in static_commands:
-                responses.append(static_commands[command])
-            # If not, query appropriate module for a response
-            elif command in commands:
-                # Make sure there are enough arguments
-                if len(modules.Module.lines(None, query)) < commands[command].ARGC:
-                    responses.append(commands[command].ARGUMENT_WARNING)
-                else:
-                    response = commands[command].response(query, message)
-                    if response is not None:
-                        responses.append(response)
-            elif command == "help":
+            """
+            if command == "help":
                 if query:
                     query = query.strip(PREFIX)
-                    if query in static_commands:
-                        responses.append(PREFIX + query + ": static response.")
                     elif query in commands:
                         responses.append(PREFIX + query + ": " + commands[query].DESCRIPTION + f". Requires {commands[query].ARGC} argument(s).")
                     else:
@@ -54,53 +38,7 @@ def process_message(message):
                     help_string += "\nTools: " + ", ".join([PREFIX + title for title in commands])
                     help_string += f"\n(Run `{PREFIX}help commandname` for in-depth explanations.)"
                     responses.append(help_string)
-            elif command == "register":
-                # TODO: this is lazy and bad, fix it
-                args = query.split(None, 1)
-                new_command = args.pop(0).lower()
-                content = None
-                if args:
-                    content = args[0]
-                response = Response.query.get(new_command)
-                if response is None:
-                    if not content and not message.image_url:
-                        responses.append("Please provide content or an image.")
-                    else:
-                        response = Response(new_command, content, message.image_url)
-                        db.session.add(response)
-                        db.session.commit()
-                        responses.append(f"Command {new_command} registered successfully.")
-                else:
-                    responses.append(f"Command {new_command} already registered!")
-            elif command == "unregister":
-                response = Response.query.get(query)
-                if response is None:
-                    responses.append(f"No registered command named {query}.")
-                else:
-                    db.session.delete(response)
-                    db.session.commit()
-                    responses.append(f"Command {query} unregistered.")
-            else:
-                response = Response.query.get(command)
-                if response is not None:
-                    responses.append((response.content, response.image_url) if response.image_url else response.content)
-                else:
-                    try:
-                        closest = difflib.get_close_matches(command, list(static_commands.keys()) + list(commands.keys()), 1)[0]
-                        advice = f"Perhaps you meant {PREFIX}{closest}? "
-                    except IndexError:
-                        advice = ""
-                    responses.append(f"Command not found. {advice}Use !help to view a list of commands.")
-        if "thank" in message.text.lower() and "yalebot" in message.text.lower():
-            responses.append("You're welcome, " + forename + "! :)")
-    if message.sender_type == SenderType.SYSTEM:
-        for option in system_responses:
-            if system_responses[option].RE.match(message.text):
-                responses.append(system_responses[option].response(message.text, message))
-        if system_responses["welcome"].RE.match(message.text):
-            check_names = system_responses["welcome"].get_names_groupme(message.text)
-            for check_name in check_names:
-                responses.append(commands["verify"].check_user(check_name))
+            """
     return responses
 
 
@@ -165,20 +103,6 @@ def home():
     return render_template("index.html", static_commands=static_commands.keys(), commands=[(key, commands[key].DESCRIPTION) for key in commands])
 
 
-@app.route("/memes")
-def memes():
-    return render_template("memes.html",
-                           memes=zip(commands["meme"].templates.keys(),
-                                     [len(commands["meme"].templates[template]) - 1 for template in commands["meme"].templates]))
-
-
-@app.route("/analytics/<group_id>")
-def analytics(group_id):
-    # TODO: clear up users/leaderboards naming
-    users = commands["analytics"].leaderboards.get(group_id)
-    return render_template("analytics.html", users=users)
-
-
 def in_group(group_id):
     return db.session.query(db.exists().where(Bot.group_id == group_id)).scalar()
 
@@ -210,18 +134,6 @@ def manager():
     if os.environ.get("DATABASE_URL") is not None:
         groups = [group for group in groups if not Bot.query.get(group["group_id"])]
         bots = [bot for bot in bots if Bot.query.get(bot["group_id"])]
-    # TEMPORARY; fill in information that used to not be collected
-    if bots:
-        for bot in bots:
-            # TODO remove this abomination
-            group_id = bot["group_id"]
-            this_bot = Bot.query.get(group_id)
-            me = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
-            group = requests.get(f"https://api.groupme.com/v3/groups/{group_id}?token={access_token}").json()["response"]
-            this_bot.group_name = group["name"]
-            this_bot.access_token = access_token
-            this_bot.owner_name = me["name"]
-        db.session.commit()
     return render_template("manager.html", access_token=access_token, groups=groups, bots=bots)
 
 
@@ -326,121 +238,3 @@ def cah_selection(data):
         if permitted:
             send(f"{player.name} has played a card. {remaining_players} still need to play.", group_id)
     cah_ping(access_token)
-
-
-if __name__ == "__main__":
-    while True:
-        print(process_message(Message({"attachments": []},
-                                      input("> "),
-                                      name="Tester",
-                                      group_id="49940116",
-                                      avatar_url="https://i.groupme.com/563x563.jpeg.d055af594625412fab6b5a66dbb27693")))
-
-
-discord_client = discord.Client()
-
-
-async def start():
-    await discord_client.start(os.environ.get("DISCORD_TOKEN"))
-
-
-def run_loop(loop):
-    loop.run_forever()
-
-
-@discord_client.event
-async def on_ready():
-    """Run when the bot is ready."""
-    print(f"Logged into Discord as {discord_client.user.name} (ID {discord_client.user.id}).")
-    await discord_client.change_presence(status=discord.Status.online, activity=discord.Game(name="GitHub: ErikBoesen/Yalebot!"))
-
-
-@discord_client.event
-async def on_message(message):
-    """Catch a user's messages and figure out what to return."""
-    # Log message
-    response = process_message(Message.from_discord(message))
-    await discord_send(response, message.channel)
-
-
-async def discord_send(content, channel):
-    if isinstance(content, list):
-        for item in content:
-            await discord_send(item, channel)
-    elif isinstance(content, tuple):
-        content, image = content
-        await discord_send(content, channel)
-        await discord_send(image, channel)
-    elif content:
-        await channel.send(content)
-
-
-@discord_client.event
-async def on_member_join(self, member):
-    """
-    When a member joins a server.
-    :param member: The name of the member who joined.
-    """
-    await discord_send("**Welcome " + member.mention + " to the server!** :rocket:", member.server.default_channel)
-
-
-@discord_client.event
-async def on_member_remove(self, member):
-    """
-    When a member has left or been kicked from a server.
-    :param member: The name of the member who left.
-    """
-    await discord_send(member.mention + " has left the server. :frowning:", member.server.default_channel)
-
-
-asyncio.get_child_watcher()
-loop = asyncio.get_event_loop()
-loop.create_task(start())
-
-thread = Thread(target=run_loop, args=(loop,))
-thread.start()
-
-
-# Facebook Messenger section
-facebook_bot = FacebookBot(os.environ["FACEBOOK_ACCESS_TOKEN"])
-
-
-def facebook_reply(recipient_id, message):
-    response = process_message(Message.from_facebook(message))
-    facebook_send(recipient_id, response)
-
-
-@app.route("/facebook", methods=["GET", "POST"])
-def receive_message():
-    if request.method == "GET":
-        """
-        Before allowing people to message your bot, Facebook has implemented a verify token
-        that confirms all requests that your bot receives came from Facebook.
-        """
-        token_sent = request.args.get("hub.verify_token")
-        if token_sent == os.environ.get("FACEBOOK_VERIFY_TOKEN"):
-            return request.args.get("hub.challenge")
-        return "Invalid verification token."
-    # get whatever message a user sent the bot
-    output = request.get_json()
-    for event in output["entry"]:
-        messaging = event["messaging"]
-        for message in messaging:
-            if message.get("message"):
-                # Get Messenger ID for user so we know where to send response back to
-                recipient_id = message["sender"]["id"]
-                if message["message"].get("text"):
-                    Thread(target=facebook_reply, args=(recipient_id, message)).start()
-    return "ok", 200
-
-
-def facebook_send(recipient_id, content):
-    if isinstance(content, list):
-        for item in content:
-            facebook_send(recipient_id, item)
-    elif isinstance(content, tuple):
-        content, image = content
-        facebook_send(recipient_id, content)
-        facebook_bot.send_image_url(recipient_id, image)
-    elif content:
-        facebook_bot.send_text_message(recipient_id, content)
