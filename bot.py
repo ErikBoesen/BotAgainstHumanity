@@ -360,7 +360,7 @@ def manager():
     groups = requests.get(f"https://api.groupme.com/v3/groups?token={access_token}").json()["response"]
     groups = [group for group in groups if not Bot.query.get(group["group_id"])]
     groupme_bots = requests.get(f"https://api.groupme.com/v3/bots?token={access_token}").json()["response"]
-    bots = Bot.query.all(owner_id=me["user_id"])
+    bots = Bot.query.filter_by(owner_id=me["user_id"])
     return render_template("manager.html", access_token=access_token, groups=groups, bots=bots)
 
 
