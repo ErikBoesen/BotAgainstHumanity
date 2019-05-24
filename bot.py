@@ -235,19 +235,19 @@ def process_message(message):
                 playing[user_id] = group_id
                 game.join(user_id, name)
                 return (f"Cards Against Humanity game started. {name} added to game as first Czar. Play at https://botagainsthumanitygroupme.herokuapp.com/play.\n"
-                        "Other players can say !cah join to join. !cah end will terminate the game.\n")
+                        "Other players can say `CAH join` to join. `CAH end` will terminate the game.\n")
             elif command == "end":
                 if game is None:
                     return "No game in progress."
                 games.pop(group_id)
                 for user_id in game.players:
                     playing.pop(user_id)
-                return "Game ended. Say !cah start to start a new game."
+                return "Game ended. Say `CAH start` to start a new game."
             elif command == "join":
                 if user_id in playing:
                     return "You're already in a game."
                 if group_id not in games:
-                    return "No game in progress. Say !cah start to start a game."
+                    return "No game in progress. Say `CAH start` to start a game."
                 # TODO: DRY
                 playing[user_id] = group_id
                 game.join(user_id, name)
