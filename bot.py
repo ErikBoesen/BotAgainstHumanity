@@ -230,18 +230,21 @@ def process_message(message):
             user_id = message["user_id"]
             name = message["name"]
 
-
+            game = games.get(group_id)
             if command == "start":
-                if group_id in games:
+                if game:
                     return "Game already started!"
-                games[group_id] = Game(group_id)
-                self.add_player(group_id, user_id, name)
+                game = Game(group_id)
+                games[group_id] = game
+                # TODO: DRY
+                playing[user_id] = group_id
+                game.join(user_id, name)
                 return (f"Cards Against Humanity game started. {name} added to game as first Czar. Play at https://yalebot.herokuapp.com/cah/join.\n"
                         "Other players can say !cah join to join. !cah end will terminate the game.\n")
             elif command == "end":
-                if group_id not in games:
+                if game is None:
                     return "No game in progress."
-                game = games.pop(group_id)
+                games.pop(group_id)
                 for user_id in game.players:
                     playing.pop(user_id)
                 return "Game ended. Say !cah start to start a new game."
@@ -250,11 +253,15 @@ def process_message(message):
                     return "You're already in a game."
                 if group_id not in games:
                     return "No game in progress. Say !cah start to start a game."
-                self.add_player(group_id, user_id, name)
+                # TODO: DRY
+                playing[user_id] = group_id
+                game.join(user_id, name)
                 return f"{name} has joined the game! Please go to https://yalebot.herokuapp.com/cah/join to play."
             elif command == "leave":
                 if user_id in playing:
                     playing.pop(user_id)
+                    # TODO: remove them from game also!!
+                    # TODO: need to make sure they weren't czar or anything.
                     return f"Removed {name} from the game."
                 else:
                     return f"{name} is not currently in a game."
