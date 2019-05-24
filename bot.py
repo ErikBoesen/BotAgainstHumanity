@@ -25,18 +25,11 @@ class Player:
         self.hand = []
         self.won = []
 
-    def pick_up_white(self, card):
+    def draw_white(self, card):
         self.hand.append(card)
 
     def score(self, card):
         self.won.append(card)
-
-    """
-    def discard_all(self):
-        hand = self.hand
-        self.hand = None
-        return hand
-    """
 
 
 class Game:
@@ -52,7 +45,7 @@ class Game:
         self.hand_size = 8
         self.build_decks()
         self.czar_user_id = None
-        self.choose_black_card()
+        self.draw_black_card()
 
     def build_decks(self):
         """
@@ -80,27 +73,45 @@ class Game:
             self.white_deck = json.load(f)
         random.shuffle(self.white_deck)
 
-    def choose_black_card(self):
+    def draw_black_card(self):
+        """
+        Choose a random new black card from deck.
+        """
         self.current_black_card = self.black_deck.pop()
 
-    def assign_czar(self, user_id=None):
+    def appoint_czar(self, user_id=None):
+        """
+        Change who's Card Czar.
+
+        :param user_id: ID of user to appoint as Czar. If not provided, a random player will be chosen.
+        """
         if user_id is None:
             user_id = random.choice(list(self.players.keys()))
-        # TODO: Do we need this function?
-        # At least make it more pythonic
         self.czar_user_id = user_id
 
     def join(self, user_id, name):
+        """
+        Add a player to the game.
+
+        :param user_id: ID of user to add.
+        :param name: the user's name.
+        """
         if user_id in self.players:
             return False
         self.players[user_id] = Player(user_id, name)
         self.deal(user_id)
         if self.czar_user_id is None:
-            self.assign_czar(user_id)
+            self.appoint_czar(user_id)
+        return True
 
     def deal(self, user_id):
+        """
+        Fill a user's hand.
+
+        :param user_id: user to deal to.
+        """
         for i in range(self.hand_size):
-            self.players[user_id].pick_up_white(self.white_deck.pop())
+            self.players[user_id].draw_white(self.white_deck.pop())
 
     def has_played(self, user_id):
         """
@@ -117,7 +128,7 @@ class Game:
         card = self.players[user_id].hand.pop(card_index)
         self.selection.append((user_id, card))
         # TODO: this is repeated from above, make a method to draw cards
-        self.players[user_id].pick_up_white(self.white_deck.pop())
+        self.players[user_id].draw_white(self.white_deck.pop())
         return True
 
     def players_needed(self):
@@ -138,9 +149,9 @@ class Game:
     def czar_choose(self, card_index):
         user_id, card = self.get_nth_card_user_id(card_index)
         self.players[user_id].score(self.current_black_card)
-        self.choose_black_card()
+        self.draw_black_card()
         self.selection = []
-        self.assign_czar(user_id)
+        self.appoint_czar(user_id)
         # Return card and winner
         return card, self.players[user_id]
 
