@@ -219,7 +219,7 @@ def get_user_game(self, user_id):
 
 def process_message(message):
     if message["sender_type"] == "user":
-        if message.text.startswith(PREFIX):
+        if message["text"].startswith(PREFIX):
             instructions = message.text[len(PREFIX):].strip().split(None, 1)
             command = instructions.pop(0).lower()
             query = instructions[0] if len(instructions) > 0 else ""
