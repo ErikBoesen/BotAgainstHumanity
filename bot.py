@@ -108,14 +108,24 @@ class Game:
         """
         Fill a user's hand.
 
-        :param user_id: user to deal to.
+        :param user_id: ID of user to deal to.
         """
         for i in range(self.hand_size):
-            self.players[user_id].draw_white(self.white_deck.pop())
+            self.deal_one(user_id)
+
+    def deal_one(self, user_id):
+        """
+        Deal one white card to a specified user.
+
+        :param user_id: ID of user to whom to deal.
+        """
+        self.players[user_id].draw_white(self.white_deck.pop())
 
     def has_played(self, user_id):
         """
         Check whether a user has played a card already this round.
+
+        :param user_id: ID of user to check.
         """
         for candidate_id, card in self.selection:
             if candidate_id == user_id:
@@ -123,12 +133,17 @@ class Game:
         return False
 
     def player_choose(self, user_id, card_index):
+        """
+        Take a card from a user's hand and play it for the round.
+
+        :param user_id: ID of user who's playing.
+        :param card_index: index of card that user has chosen in their hand or selection.
+        """
         if self.has_played(user_id):
             return False
         card = self.players[user_id].hand.pop(card_index)
         self.selection.append((user_id, card))
-        # TODO: this is repeated from above, make a method to draw cards
-        self.players[user_id].draw_white(self.white_deck.pop())
+        self.deal_one(user_id)
         return True
 
     def players_needed(self):
