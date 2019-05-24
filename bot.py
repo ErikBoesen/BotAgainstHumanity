@@ -12,6 +12,8 @@ import random
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_POOL_SIZE"] = 15
+# Suppress errors
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
 
@@ -460,3 +462,5 @@ def game_selection(data):
         if permitted:
             send(f"{player.name} has played a card. {remaining_players} still need to play.", group_id)
     game_ping(access_token)
+
+print("Loaded!")
