@@ -400,26 +400,21 @@ def cah():
     return render_template("cah.html")
 
 
-@app.route("/cah/join")
-def cah_join_redirect():
-    return redirect("https://oauth.groupme.com/oauth/authorize?client_id=iEs9DrSihBnH0JbOGZSWK8SdsqRt0pUn8EpulL8Fia3rf6QM", code=302)
-
-
-@socketio.on("cah_connect")
-def cah_connect(data):
+@socketio.on("game_connect")
+def game_connect(data):
     access_token = data["access_token"]
     # TODO: DRY!!
     user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
     user_id = user["user_id"]
     game = commands["cah"].get_user_game(user_id)
 
-    joined = cah_ping(access_token, room=False)
+    joined = game_ping(access_token, room=False)
     if joined:
         join_room(game.group_id)
-        cah_ping(access_token, single=False)
+        game_ping(access_token, single=False)
 
 
-def cah_ping(access_token, room=True, single=True):
+def game_ping(access_token, room=True, single=True):
     # TODO: These lines are repeated like three times what are you DOING
     # TODO: Clean this up in the morning when you're sane
     user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
@@ -427,25 +422,25 @@ def cah_ping(access_token, room=True, single=True):
     game = commands["cah"].get_user_game(user_id)
     if room:
         selection = [card for _, card in game.selection]
-        emit("cah_ping", {"black_card": game.current_black_card,
+        emit("game_ping", {"black_card": game.current_black_card,
                           "selection_length": len(selection),
                           "selection": selection if game.players_needed() == 0 else None},
              room=game.group_id)
     if single:
         if game is None:
-            emit("cah_update_user", {"joined": False})
+            emit("game_update_user", {"joined": False})
             return False
         player = game.players[user_id]
         is_czar = game.is_czar(user_id)
-        emit("cah_update_user", {"joined": True,
+        emit("game_update_user", {"joined": True,
                                  "is_czar": is_czar,
                                  "hand": player.hand,
                                  "score": len(player.won)})
         return True
 
 
-@socketio.on("cah_selection")
-def cah_selection(data):
+@socketio.on("game_selection")
+def game_selection(data):
     access_token = data["access_token"]
     user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
     user_id = user["user_id"]
@@ -464,4 +459,4 @@ def cah_selection(data):
         remaining_players = game.players_needed()
         if permitted:
             send(f"{player.name} has played a card. {remaining_players} still need to play.", group_id)
-    cah_ping(access_token)
+    game_ping(access_token)

@@ -5,7 +5,7 @@ var access_token = (new URL(location.href)).searchParams.get("access_token");
 var socket = io.connect(location.protocol + "//" + location.host);
 socket.on("connect", function() {
     console.log(socket.connected ? "Connected" : "Disconnected", socket);
-    socket.emit("cah_connect", {"access_token": access_token});
+    socket.emit("game_connect", {"access_token": access_token});
 });
 
 // Create card elements easily
@@ -45,12 +45,12 @@ function fillHand(cards) {
     fillRow(elem.hand, cards);
 }
 
-socket.on("cah_ping", function(data) {
+socket.on("game_ping", function(data) {
     console.log("Received ping from game server", data);
     elem.black.textContent = data.black_card;
     fillSelection(data.selection, data.selection_length);
 });
-socket.on("cah_update_user", function(data) {
+socket.on("game_update_user", function(data) {
     console.log("Received user update from server", data);
     if (data.joined) {
         elem.game.style.display = "block";
@@ -81,7 +81,7 @@ onclick = function(e) {
             "access_token": access_token,
             "card_index": cardIndex,
         };
-        socket.emit("cah_selection", data);
+        socket.emit("game_selection", data);
         elem.hand.classList.add("disabled");
     }
 };
