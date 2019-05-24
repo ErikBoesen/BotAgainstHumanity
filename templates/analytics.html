@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block main %}
+{% if users is none %}
+<p>No data for this group! Run <em>!analytics generate</em>.</p>
+{% else %}
+<table id="analytics">
+    <thead>
+        {% for key, value in users[0].items() %}
+        <th>{{ key }}</th>
+        {% endfor %}
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            {% for key, value in user.items() %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}
