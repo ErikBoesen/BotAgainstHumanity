@@ -211,7 +211,7 @@ class Game:
     """
 
 
-def get_user_game(self, user_id):
+def get_user_game(user_id):
     game_group_id = playing.get(user_id)
     if game_group_id is None:
         return None
