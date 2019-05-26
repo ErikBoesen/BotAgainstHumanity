@@ -218,6 +218,7 @@ def get_user_game(self, user_id):
     return games[game_group_id]
 
 def process_message(message):
+    print(message)
     if message["sender_type"] == "user":
         if message["text"].startswith(PREFIX):
             instructions = message["text"][len(PREFIX):].strip().split(None, 1)

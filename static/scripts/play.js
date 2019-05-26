@@ -3,7 +3,7 @@ var access_token = (new URL(location.href)).searchParams.get("access_token");
 
 // Initiate connection to websocket, and listen for connection
 var socket = io.connect(location.protocol + "//" + location.host);
-socket.on("game_connect", function() {
+socket.on("connect", function() {
     console.log(socket.connected ? "Connected" : "Disconnected", socket);
     socket.emit("game_connect", {"access_token": access_token});
 });
