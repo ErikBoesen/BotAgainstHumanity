@@ -332,10 +332,6 @@ def home():
     return render_template("index.html")
 
 
-def in_group(group_id):
-    return db.session.query(db.exists().where(Bot.group_id == group_id)).scalar()
-
-
 @app.route("/manager", methods=["GET", "POST"])
 def manager():
     access_token = request.args["access_token"]

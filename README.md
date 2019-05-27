@@ -6,7 +6,7 @@
 ![Screenshot](screenshot.png)
 
 ## Motivation
-Bot Against Humanity was created by [Erik Boesen](https://github.com/ErikBoesen). It grew out of [Yalebot](https://github.com/ErikBoesen/Yalebot), a bot designed (also by Erik) for Yale University's Class of 2023 GroupMe chats. Yalebot is a very complex bot with several hundred different functions, of which facilitating virtual Cards Against Humanity games was only one. The card game did not fit well into the existing modular infrastructure of Yalebot due to the need for interaction through the chat, a web interface, and websockets. As such, Yalebot's CAH functionality was spun off into this bot.
+Bot Against Humanity was created by [Erik Boesen](https://github.com/ErikBoesen). It grew out of [Yalebot](https://github.com/ErikBoesen/Yalebot), a bot designed (also by Erik) for Yale University's Class of 2023 GroupMe chats. Yalebot is a very complex bot with several hundred different functions, of which facilitating virtual Cards Against Humanity games was only one. The card game did not fit well into the existing modular infrastructure of Yalebot due to the need for interaction through the chat, a web interface, and websockets. In addition, it was relevant to a wider market than Yale students. As such, Yalebot's CAH functionality was spun off into this bot.
 
 To add this bot to your own server, go [here](https://botagainsthumanitygroupme.herokuapp.com)!
 
