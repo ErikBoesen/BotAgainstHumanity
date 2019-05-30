@@ -254,7 +254,7 @@ def process_message(message):
                 # TODO: DRY
                 playing[user_id] = group_id
                 game.join(user_id, name)
-                return f"{name} has joined the game! Please go to https://botagainsthumanitygroupme.herokuapp.com/cah/join to play."
+                return f"{name} has joined the game! Please go to https://botagainsthumanitygroupme.herokuapp.com/play to play."
             elif command == "leave":
                 if user_id in playing:
                     playing.pop(user_id)
