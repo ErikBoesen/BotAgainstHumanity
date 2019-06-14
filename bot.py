@@ -7,6 +7,13 @@ import eventlet
 from threading import Thread
 import json
 import random
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(
+    dsn="https://4466a6d4b2b34920bfc2078edf555541@sentry.io/1481916",
+    integrations=[FlaskIntegration()]
+)
 
 
 app = Flask(__name__)
