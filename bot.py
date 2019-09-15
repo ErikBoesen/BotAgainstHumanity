@@ -276,6 +276,14 @@ def process_message(message):
                     responses.append(help_string)
             """
 
+def api_get(endpoint, access_token):
+    return requests.get(f"https://api.groupme.com/v3/users/{endpoint}?token={access_token}").json()["response"]
+
+
+def get_me(access_token):
+    return api_get("me", access_token)
+
+
 
 def reply(message, group_id):
     """
@@ -327,7 +335,7 @@ def home():
 def manager():
     access_token = request.args["access_token"]
     callback_url = "https://botagainsthumanitygroupme.herokuapp.com/message"
-    me = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
+    me = api_me(access_token)
     if request.method == "POST":
         # Build and send bot data
         group_id = request.form["group_id"]
@@ -387,7 +395,7 @@ def cah():
 def game_connect(data):
     access_token = data["access_token"]
     # TODO: DRY!!
-    user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
+    user = api_me(access_token)
     user_id = user["user_id"]
     game = get_user_game(user_id)
 
@@ -400,14 +408,14 @@ def game_connect(data):
 def game_ping(access_token, room=True, single=True):
     # TODO: These lines are repeated like three times what are you DOING
     # TODO: Clean this up in the morning when you're sane
-    user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
+    user = api_get(access_token)
     user_id = user["user_id"]
     game = get_user_game(user_id)
     if room:
         selection = [card for _, card in game.selection]
         emit("game_ping", {"black_card": game.current_black_card,
-                          "selection_length": len(selection),
-                          "selection": selection if game.players_needed() == 0 else None},
+                           "selection_length": len(selection),
+                           "selection": selection if game.players_needed() == 0 else None},
              room=game.group_id)
     if single:
         if game is None:
@@ -425,7 +433,7 @@ def game_ping(access_token, room=True, single=True):
 @socketio.on("game_selection")
 def game_selection(data):
     access_token = data["access_token"]
-    user = requests.get(f"https://api.groupme.com/v3/users/me?token={access_token}").json()["response"]
+    user = api_me(access_token)
     user_id = user["user_id"]
     game = get_user_game(user_id)
     player = game.players[user_id]
