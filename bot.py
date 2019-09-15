@@ -202,15 +202,6 @@ class Game:
         # Return card and winner
         return card, self.players[user_id]
 
-    """
-    def discard(self, user_id):
-        if user_id not in self.players:
-            return False
-        self.white_deck = self.players[user_id].discard_all() + self.white_deck
-        self.deal(user_id)
-    """
-
-
 def get_user_game(user_id):
     game_group_id = playing.get(user_id)
     if game_group_id is None:
@@ -369,14 +360,6 @@ class Bot(db.Model):
     owner_id = db.Column(db.String(16))
     owner_name = db.Column(db.String(64))
     access_token = db.Column(db.String(32))
-
-    def __init__(self, group_id, group_name, bot_id, owner_id, owner_name, access_token):
-        self.group_id = group_id
-        self.group_name = group_name
-        self.bot_id = bot_id
-        self.owner_id = owner_id
-        self.owner_name = owner_name
-        self.access_token = access_token
 
 
 @app.route("/delete", methods=["POST"])
