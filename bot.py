@@ -1,7 +1,7 @@
+import mebots
 import os
 import requests
 from flask import Flask, request, render_template, redirect
-from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import eventlet
 from threading import Thread
@@ -10,12 +10,8 @@ import random
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_POOL_SIZE"] = 15
-# Suppress errors
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
 socketio = SocketIO(app)
+bot = mebots.Bot("bah", os.environ["BOT_TOKEN"])
 
 PREFIX = "CAH "
 
@@ -316,11 +312,9 @@ def send(message, group_id):
     :param group_id: ID of group in which to send message.
     """
     if message:
-        bot = Bot.query.get(group_id)
-        # Close session so it won't remain locked on database
-        db.session.close()
+        instance = bot.instance(group_id)
         data = {
-            "bot_id": bot.bot_id,
+            "bot_id": instance.id,
             "text": message,
         }
         response = requests.post("https://api.groupme.com/v3/bots/post", data=data)
@@ -329,57 +323,6 @@ def send(message, group_id):
 @app.route("/")
 def home():
     return render_template("index.html")
-
-
-@app.route("/manager", methods=["GET", "POST"])
-def manager():
-    access_token = request.args["access_token"]
-    callback_url = "https://botagainsthumanitygroupme.herokuapp.com/message"
-    me = api_me(access_token)
-    if request.method == "POST":
-        # Build and send bot data
-        group_id = request.form["group_id"]
-        bot = {
-            "name": "Bot Against Humanity",
-            "group_id": group_id,
-            "avatar_url": "https://i.groupme.com/200x200.png.092e3648ee2745aeb3296a51b3a85e0f",
-            "callback_url": callback_url,
-        }
-        result = requests.post(f"https://api.groupme.com/v3/bots?token={access_token}",
-                               json={"bot": bot}).json()["response"]["bot"]
-        group = requests.get(f"https://api.groupme.com/v3/groups/{group_id}?token={access_token}").json()["response"]
-
-        # Store in database
-        registrant = Bot(group_id, group["name"], result["bot_id"], me["user_id"], me["name"], access_token)
-        db.session.add(registrant)
-        db.session.commit()
-    groups = requests.get(f"https://api.groupme.com/v3/groups?token={access_token}").json()["response"]
-    groups = [group for group in groups if not Bot.query.get(group["group_id"])]
-    groupme_bots = requests.get(f"https://api.groupme.com/v3/bots?token={access_token}").json()["response"]
-    bots = Bot.query.filter_by(owner_id=me["user_id"])
-    return render_template("manager.html", access_token=access_token, groups=groups, bots=bots)
-
-
-class Bot(db.Model):
-    __tablename__ = "bots"
-    group_id = db.Column(db.String(16), unique=True, primary_key=True)
-    group_name = db.Column(db.String(50))
-    bot_id = db.Column(db.String(26), unique=True)
-    owner_id = db.Column(db.String(16))
-    owner_name = db.Column(db.String(64))
-    access_token = db.Column(db.String(32))
-
-
-@app.route("/delete", methods=["POST"])
-def delete_bot():
-    data = request.get_json()
-    access_token = data["access_token"]
-    bot = Bot.query.get(data["group_id"])
-    req = requests.post(f"https://api.groupme.com/v3/bots/destroy?token={access_token}", json={"bot_id": bot.bot_id})
-    if req.ok:
-        db.session.delete(bot)
-        db.session.commit()
-        return "ok", 200
 
 
 @app.route("/play", methods=["GET"])

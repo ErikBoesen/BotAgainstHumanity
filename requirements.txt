@@ -1,7 +1,6 @@
-requests
 Flask
-Flask-SQLAlchemy
-psycopg2
 Flask-SocketIO
+requests
 eventlet
 gunicorn
+mebots
