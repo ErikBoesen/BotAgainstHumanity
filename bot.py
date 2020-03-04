@@ -351,7 +351,7 @@ def game_connect(data):
 def game_ping(access_token, room=True, single=True):
     # TODO: These lines are repeated like three times what are you DOING
     # TODO: Clean this up in the morning when you're sane
-    user = api_get(access_token)
+    user = get_me(access_token)
     user_id = user["user_id"]
     game = get_user_game(user_id)
     if room:
