@@ -338,7 +338,7 @@ def cah():
 def game_connect(data):
     access_token = data["access_token"]
     # TODO: DRY!!
-    user = api_me(access_token)
+    user = get_me(access_token)
     user_id = user["user_id"]
     game = get_user_game(user_id)
 
@@ -376,7 +376,7 @@ def game_ping(access_token, room=True, single=True):
 @socketio.on("game_selection")
 def game_selection(data):
     access_token = data["access_token"]
-    user = api_me(access_token)
+    user = get_me(access_token)
     user_id = user["user_id"]
     game = get_user_game(user_id)
     player = game.players[user_id]
