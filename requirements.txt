@@ -4,3 +4,4 @@ requests
 eventlet
 gunicorn
 mebots
+pyopenssl==19.1.0
