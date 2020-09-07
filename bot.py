@@ -198,11 +198,13 @@ class Game:
         # Return card and winner
         return card, self.players[user_id]
 
+
 def get_user_game(user_id):
     game_group_id = playing.get(user_id)
     if game_group_id is None:
         return None
     return games[game_group_id]
+
 
 def process_message(message):
     print(message)
@@ -272,13 +274,13 @@ def process_message(message):
                     responses.append(help_string)
             """
 
+
 def api_get(endpoint, access_token):
     return requests.get(f"https://api.groupme.com/v3/users/{endpoint}?token={access_token}").json()["response"]
 
 
 def get_me(access_token):
     return api_get("me", access_token)
-
 
 
 def reply(message, group_id):
@@ -367,9 +369,9 @@ def game_ping(access_token, room=True, single=True):
         player = game.players[user_id]
         is_czar = game.is_czar(user_id)
         emit("game_update_user", {"joined": True,
-                                 "is_czar": is_czar,
-                                 "hand": player.hand,
-                                 "score": len(player.won)})
+                                  "is_czar": is_czar,
+                                  "hand": player.hand,
+                                  "score": len(player.won)})
         return True
 
 
