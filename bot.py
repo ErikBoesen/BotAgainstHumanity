@@ -319,7 +319,7 @@ def send(message, group_id):
             "bot_id": instance.id,
             "text": message,
         }
-        response = requests.post("https://api.groupme.com/v3/bots/post", data=data)
+        response = requests.post("https://api.groupme.com/v3/bots/post", json=data)
 
 
 @app.route("/")
