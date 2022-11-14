@@ -11,7 +11,7 @@ import random
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-PREFIX = "CAH"
+PREFIX = "cah"
 
 games = {}
 # TODO: use references to Player objects??
@@ -207,7 +207,7 @@ def get_user_game(user_id):
 def process_message(message):
     print(message)
     if message["sender_type"] == "user":
-        if message["text"].startswith(PREFIX):
+        if message["text"].lower().startswith(PREFIX):
             instructions = message["text"][len(PREFIX):].strip().split(None, 1)
             command = instructions.pop(0).lower()
             query = instructions[0] if len(instructions) > 0 else ""
