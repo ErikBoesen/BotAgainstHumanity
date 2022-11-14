@@ -4,3 +4,4 @@ requests
 eventlet
 gunicorn
 pyopenssl==19.1.0
+cryptography==2.8
