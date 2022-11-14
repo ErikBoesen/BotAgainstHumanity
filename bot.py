@@ -182,6 +182,7 @@ class Game:
             if counter == n:
                 return user_id, card
             counter += 1
+        return None, None
 
     def czar_choose(self, card_index):
         """
