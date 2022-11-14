@@ -226,19 +226,19 @@ def process_message(message):
                 playing[user_id] = group_id
                 game.join(user_id, name)
                 return (f"Cards Against Humanity game started. {name} added to game as first Czar. Play at https://botagainsthumanitygroupme.herokuapp.com/play.\n"
-                        "Other players can say `CAH join` to join. `CAH end` will terminate the game.\n")
+                        "Other players can say 'CAH join' to join. 'CAH end' will terminate the game.\n")
             elif command == "end":
                 if game is None:
                     return "No game in progress."
                 games.pop(group_id)
                 for user_id in game.players:
                     playing.pop(user_id)
-                return "Game ended. Say `CAH start` to start a new game."
+                return "Game ended. Say 'CAH start' to start a new game."
             elif command == "join":
                 if user_id in playing:
                     return "You're already in a game."
                 if group_id not in games:
-                    return "No game in progress. Say `CAH start` to start a game."
+                    return "No game in progress. Say 'CAH start' to start a game."
                 # TODO: DRY
                 playing[user_id] = group_id
                 game.join(user_id, name)
@@ -302,22 +302,21 @@ def receive_message_callback():
     """
     # Retrieve data on that GroupMe message.
     message = request.get_json()
-    group_id = message["group_id"]
+    bot_id = message["bot_id"]
     # Begin reply process in a new thread.
-    Thread(target=reply, args=(message, group_id)).start()
+    Thread(target=reply, args=(message, bot_id)).start()
     return "ok", 200
 
 
-def send(message, group_id):
+def send(message, bot_id):
     """
     Reply in chat.
     :param message: text of message to send.
-    :param group_id: ID of group in which to send message.
+    :param bot_id: ID of bot instance through which to send message.
     """
     if message:
-        instance = bot.instance(group_id)
         data = {
-            "bot_id": instance.id,
+            "bot_id": bot_id,
             "text": message,
         }
         response = requests.post("https://api.groupme.com/v3/bots/post", json=data)
