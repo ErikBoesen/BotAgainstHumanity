@@ -1,3 +1,4 @@
+import mebots
 import os
 import requests
 from flask import Flask, request, render_template, redirect
@@ -8,6 +9,7 @@ import json
 import random
 
 
+bot = mebots.Bot('bah', os.environ['BOT_TOKEN'])
 app = Flask(__name__)
 socketio = SocketIO(app)
 
@@ -304,19 +306,22 @@ def receive_message_callback():
     """
     # Retrieve data on that GroupMe message.
     message = request.get_json()
-    bot_id = message["bot_id"]
+    group_id = message["group_id"]
+    bot_id = message.get("bot_id")
     # Begin reply process in a new thread.
-    Thread(target=reply, args=(message, bot_id)).start()
+    Thread(target=reply, args=(message, bot_id, group_id)).start()
     return "ok", 200
 
 
-def send(message, bot_id):
+def send(message, bot_id, group_id):
     """
     Reply in chat.
     :param message: text of message to send.
     :param bot_id: ID of bot instance through which to send message.
     """
     if message:
+        if bot_id is None:
+            bot_id = bot.instance(group_id).id
         data = {
             "bot_id": bot_id,
             "text": message,

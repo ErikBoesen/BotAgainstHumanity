@@ -3,6 +3,7 @@ Flask-SocketIO==4.3.1
 python-engineio==3.13.2
 python-socketio==4.6.0
 Werkzeug==2.0.1
+mebots
 requests
 eventlet==0.33.1
 https://github.com/benoitc/gunicorn/archive/refs/heads/master.zip#egg=gunicorn==20.1.0
