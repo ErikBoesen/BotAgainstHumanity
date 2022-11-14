@@ -288,15 +288,16 @@ def get_me(access_token):
     return api_get("me", access_token)
 
 
-def reply(message, group_id):
+def reply(message, bot_id, group_id):
     """
     Calculate message response, then send any response to the group it came from.
     Designed to be run in a thread.
 
     :param message: dictionary of message data received from webhook.
+    :param bot_id: ID of bot to use to reply to message.
     :param group_id: ID of group in which message was sent.
     """
-    send(process_message(message), group_id)
+    send(process_message(message), bot_id, group_id)
 
 
 @app.route("/message", methods=["POST"])
