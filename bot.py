@@ -11,9 +11,8 @@ import random
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-bot = mebots.Bot("bah", os.environ["BOT_TOKEN"])
 
-PREFIX = "CAH "
+PREFIX = "CAH"
 
 games = {}
 # TODO: use references to Player objects??
@@ -252,7 +251,7 @@ def process_message(message):
                     return f"Removed {name} from the game."
                 else:
                     return f"{name} is not currently in a game."
-            elif command == "info":
+            elif command in ("", "help", "info"):
                 return str(games) + " " + str(playing) + " " + str(self)
             """
             elif command == "refresh":
