@@ -332,7 +332,7 @@ def cah():
     access_token = request.args.get("access_token")
     # If user attempted to join without an access_token URL parameter, redirect them to sign in with GroupMe and get one.
     if access_token is None:
-        return redirect("https://oauth.groupme.com/oauth/authorize?client_id=uDbpRlHS0vJimpfDEVxAD5lJEborgCSRmHws0J5DyJ1cLXm7", code=302)
+        return redirect("https://oauth.groupme.com/oauth/authorize?client_id=09Mz3rJbvYCHQe6TV1022MKgSVtTFa4RYuw1t4bMxlD2hP6X", code=302)
     return render_template("play.html")
 
 
