@@ -1,7 +1,7 @@
 Flask
 Flask-SocketIO
 requests
-https://github.com/eventlet/eventlet/archive/master.zip
-gunicorn
+gunicorn==20.1.0
+eventlet==0.30.2
 pyopenssl==19.1.0
 cryptography==2.8
