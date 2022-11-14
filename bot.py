@@ -217,7 +217,7 @@ def process_message(message):
             name = message.get("name")
 
             game = games.get(group_id)
-            if command == "start":
+            if command in ("", "start"):
                 if game:
                     return "Game already started!"
                 game = Game(group_id)
@@ -251,8 +251,10 @@ def process_message(message):
                     return f"Removed {name} from the game."
                 else:
                     return f"{name} is not currently in a game."
-            elif command in ("", "help", "info"):
+            elif command == "info":
                 return str(games) + " " + str(playing) + " " + str(self)
+            elif command == "help":
+                return "Say 'CAH start' to start a game!"
             """
             elif command == "refresh":
                 games[group_id].refresh(user_id)
