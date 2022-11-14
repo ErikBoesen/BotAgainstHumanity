@@ -209,14 +209,17 @@ def process_message(message):
     if message["sender_type"] == "user":
         if message["text"].lower().startswith(PREFIX):
             instructions = message["text"][len(PREFIX):].strip().split(None, 1)
-            command = instructions.pop(0).lower()
+            try:
+                command = instructions.pop(0).lower()
+            except IndexError:
+                command = None
             query = instructions[0] if len(instructions) > 0 else ""
             group_id = message.get("group_id")
             user_id = message.get("user_id")
             name = message.get("name")
 
             game = games.get(group_id)
-            if command in ("", "start"):
+            if command in (None, "", "start"):
                 if game:
                     return "Game already started!"
                 game = Game(group_id)
