@@ -69,7 +69,7 @@ socket.on("game_update_user", function(data) {
     }
 });
 
-onclick = function(e) {
+addEventListener("click", function(e) {
     if (
         e.target.classList.contains("card", "white") &&
         !(e.target.parentNode.classList.contains("disabled"))
@@ -84,4 +84,4 @@ onclick = function(e) {
         socket.emit("game_selection", data);
         elem.hand.classList.add("disabled");
     }
-};
+});
